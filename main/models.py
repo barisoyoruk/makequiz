@@ -35,7 +35,7 @@ class User(AbstractBaseUser):
 	objects = AccountManager()
 
 	def __str__(self):
-		return self.primary_key
+		return self.email
 
 	def has_perm(self, perm, obj = None):
 		return self.is_admin
@@ -65,7 +65,7 @@ class Student(models.Model):
 	student_class = models.CharField(max_length = 10, choices = YEAR_IN_SCHOOL_CHOICES)
 
 	def __str__(self):
-		return student_ID
+		return self.student_ID
 
 class Section(models.Model):
 	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "section")
@@ -75,7 +75,7 @@ class Section(models.Model):
 	semester_time = models.CharField(max_length = 11 ) #2019-SPRING
 
 	def __str__(self):
-		return section_code
+		return self.section_code
 
 class Quiz(models.Model):
 	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "quiz")
@@ -92,16 +92,10 @@ class Question(models.Model):
 
 class Assignment(models.Model):
 	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "assignment")
-	quiz = models.ForeingKey(Quiz, on_delete = models.CASCADE, related_name = "assignment")
+	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "assignment")
 
 	publication_date = models.DateTimeField('date published')
 	due_date = models.DateTimeField('due date')
-
-class Answer(models.Model):
-	submission = models.ForeignKey(Submission, on_delete = models.CASCADE, related_name = "answer")
-	question = models.ForeingKey(Question, on_delete = models.CASCADE, related_name = "answer")
-
-	answer_text = models.CharField(max_length = 1000)
 
 class Submission(models.Model):
 	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "submission")
@@ -109,8 +103,14 @@ class Submission(models.Model):
 
 	submission_data = models.DateTimeField('date submitted')
 
+class Answer(models.Model):
+	submission = models.ForeignKey(Submission, on_delete = models.CASCADE, related_name = "answer")
+	question = models.ForeignKey(Question, on_delete = models.CASCADE, related_name = "answer")
+
+	answer_text = models.CharField(max_length = 1000)
+
 class Result(models.Model):
-	submission = models.OneToOneField(Submission, related_name = "result")
+	submission = models.OneToOneField(Submission, on_delete = models.CASCADE, related_name = "result")
 
 	feedback = models.CharField(max_length = 1000)
 	grade = models.IntegerField()

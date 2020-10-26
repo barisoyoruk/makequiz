@@ -1,47 +1,30 @@
 from django.shortcuts import render
-from rest_framework import status
+from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from main.models import Teacher, Student, Quiz, Question
+from main.models import Teacher, Student, Section, Quiz, Question, Assignment, Answer, Submission, Result
 from main.serializers import (
-	SectionSerializer,
 	TeacherSerializer,
 	StudentSerializer,
+	SectionSerializer,
 	QuizSerializer,
 	QuestionSerializer,
+	AssignmentSerializer,
+	AnswerSerializer,
+	SubmissionSerializer,
+	ResultSerializer,
 	TeacherRegistrationSerializer,
-	StudentRegistrationSerializer
+	StudentRegistrationSerializer,
+	SectionCreateSerializer,
+	SectionStudentAdditionSerializer,
+	QuizCreateSerializer,
+	QuestionCreateSerializer
 	)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def api_detail_section_view(request, pk):
-	try:
-		section = Section.object.get(pk = pk)
-	except teacher.DoesNotExist:
-		return Response(status = status.HTTP_404_NOT_FOUND)
-
-	if request.method == 'GET':
-		serializer = SectionSerializer(section)
-		return Response(serializer.data)
-	elif request.method == 'PUT':
-		serializer = SectionSerializer(section, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-	elif request.method == 'DELETE':
-		operation = section.delte()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
-		else:
-			data["failure"] = "delete failed"
-		return Response(data=data)
-
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'DELETE'])
 def api_detail_teacher_view(request, pk):
-# Create your views here.
+
 	try:
 		teacher = Teacher.objects.get(pk = pk)
 	except teacher.DoesNotExist:
@@ -50,12 +33,6 @@ def api_detail_teacher_view(request, pk):
 	if request.method == 'GET':
 		serializer = TeacherSerializer(teacher)
 		return Response(serializer.data)
-	elif request.method == 'PUT':
-		serializer = TeacherSerializer(teacher, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_40_BAD_REQUEST)
 	elif request.method == 'DELETE':
 		operation = teacher.delete()
 		data = {}
@@ -65,20 +42,7 @@ def api_detail_teacher_view(request, pk):
 			data["failure"] = "delete failed"
 		return Response(data=data)
 
-@api_view(['POST', ])
-def api_teacher_registration_view(request):
-	if request.method == 'POST':
-		serializer = TeacherRegistrationSerializer(data=request.data)
-		data = {}
-		if serializer.is_valid():
-			teacher = serializer.save()
-			data['response'] = "Successfully registered a new user."
-			data['email'] = teacher.user.email
-		else:
-			data = serializer.errors
-		return Response(data)
-
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'DELETE'])
 def api_detail_student_view(request, pk):
 # Create your views here.
 	try:
@@ -89,12 +53,6 @@ def api_detail_student_view(request, pk):
 	if request.method == 'GET':
 		serializer = StudentSerializer(student)
 		return Response(serializer.data)
-	elif request.method == 'PUT':
-		serializer = StudentSerializer(student, data=reqeust.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_404_BAD_REQUEST)
 	elif request.method == 'DELETE':
 		operation = student.delete()
 		data = {}
@@ -104,36 +62,43 @@ def api_detail_student_view(request, pk):
 			data["failure"] = "delete failed"
 		return Response(data=data)
 
-@api_view(['POST', ])
-def api_student_registration_view(request):
-	if request.method == 'POST':
-		serializer = StudentRegistrationSerializer(data=request.data)
-		data = {}
-		if serializer.is_valid():
-			student = serializer.save()
-			data['response'] = "Successfully registered a new user."
-			data['email'] = student.email
-		else:
-			data = serializer.errors
-		return Response(data)
+@api_view(['GET', 'DELETE', 'PUT'])
+def api_detail_section_view(request, pk):
+# Create your views here.
+	try:
+		section = Section.objects.get(pk = pk)
+	except Section.DoesNotExist:
+		return Response(status = status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+	if request.method == 'GET':
+		serializer = SectionSerializer(section)
+		return Response(serializer.data)
+	elif request.method == 'DELETE':
+		operation = section.delete()
+		data = {}
+		if operation:
+			data["success"] = "delete successful"
+		else:
+			data["failure"] = "delete failed"
+		return Response(data = data)
+	elif request.method == 'PUT':
+		serializer = SectionStudentAdditionSerializer(section, data = request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'DELETE'])
 def api_detail_quiz_view(request, pk):
 # Create your views here.
 	try:
-		quiz = Quiz.objects.get(pk=pk)
+		quiz = Quiz.objects.get(pk = pk)
 	except quiz.DoesNotExist:
-		return Response(status=status.HTTP_404_NOT_FOUND)
+		return Response(status = status.HTTP_404_NOT_FOUND)
 
 	if request.method == 'GET':
 		serializer = QuizSerializer(quiz)
 		return Response(serializer.data)
-	elif request.method == 'PUT':
-		serializer = QuizSerializer(quiz, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_404_BAD_REQUEST)
 	elif request.method == 'DELETE':
 		operation = quiz.delete()
 		data = {}
@@ -141,57 +106,145 @@ def api_detail_quiz_view(request, pk):
 			data["success"] = "delete successful"
 		else:
 			data["failure"] = "delete failed"
-		return Response(data=data)
+		return Response(data = data)
 
-@api_view(['POST',])
-def api_create_quiz_view(request):
-	
-	
-	quiz = Quiz(teacher=teacher)
+class QuestionViewSet(generics.RetrieveDestroyAPIView):
+	queryset = Question.objects.get_queryset()
+	serializer_class = QuestionSerializer
 
-	if request.method == 'POST':
-		serializer = QuizSerializer(quiz, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class AssignmentViewSet(viewsets.ModelViewSet):
+	serializer_class = AssignmentSerializer
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def api_detail_question_view(request, pk):
+@api_view(['GET', 'DELETE'])
+def api_detail_assignment_view(request, pk):
 # Create your views here.
 	try:
-		question = Question.objects.get(pk=pk)
-	except question.DoesNotExist:
-		return Response(status=status.HTTP_404_NOT_FOUND)
+		assignment = Assignment.objects.get(pk = pk)
+	except assignment.DoesNotExist:
+		return Response(status = status.HTTP_404_NOT_FOUND)
 
 	if request.method == 'GET':
-		serializer = QuestionSerializer(question)
+		serializer = AssignmentSerializer(assignment)
 		return Response(serializer.data)
-	elif request.method == 'PUT':
-		serializer = QuestionSerializer(question, data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors, status=status.HTTP_404_BAD_REQUEST)
 	elif request.method == 'DELETE':
-		operation = question.delete()
+		operation = assignment.delete()
 		data = {}
 		if operation:
 			data["success"] = "delete successful"
 		else:
 			data["failure"] = "delete failed"
-		return Response(data=data)
+		return Response(data = data)
 
-@api_view(['POST',])
-def api_create_question_view(request):
-	
-	quiz = Quiz.objects.get(pk=1)
+@api_view(['GET', 'DELETE'])
+def api_detail_answer_view(request, pk):
+# Create your views here.
+	try:
+		answer = Answer.objects.get(pk = pk)
+	except answer.DoesNotExist:
+		return Response(status = status.HTTP_404_NOT_FOUND)
 
-	question = question(Quiz)
+	if request.method == 'GET':
+		serializer = AnswerSerializer(answer)
+		return Response(serializer.data)
+	elif request.method == 'DELETE':
+		operation = answer.delete()
+		data = {}
+		if operation:
+			data["success"] = "delete successful"
+		else:
+			data["failure"] = "delete failed"
+		return Response(data = data)
 
+@api_view(['GET', 'DELETE'])
+def api_detail_submission_view(request, pk):
+# Create your views here.
+	try:
+		submission = Submission.objects.get(pk = pk)
+	except submission.DoesNotExist:
+		return Response(status = status.HTTP_404_NOT_FOUND)
+
+	if request.method == 'GET':
+		serializer = SubmissionSerializer(submission)
+		return Response(serializer.data)
+	elif request.method == 'DELETE':
+		operation = submission.delete()
+		data = {}
+		if operation:
+			data["success"] = "delete successful"
+		else:
+			data["failure"] = "delete failed"
+		return Response(data = data)
+
+@api_view(['GET', 'DELETE'])
+def api_detail_result_view(request, pk):
+# Create your views here.
+	try:
+		result = Result.objects.get(pk = pk)
+	except result.DoesNotExist:
+		return Response(status = status.HTTP_404_NOT_FOUND)
+
+	if request.method == 'GET':
+		serializer = ResultSerializer(result)
+		return Response(serializer.data)
+	elif request.method == 'DELETE':
+		operation = result.delete()
+		data = {}
+		if operation:
+			data["success"] = "delete successful"
+		else:
+			data["failure"] = "delete failed"
+		return Response(data = data)
+
+@api_view(['POST'])
+def api_teacher_registration_view(request):
 	if request.method == 'POST':
-		serializer = QuestionSerializer(question, data=request.data)
+		serializer = TeacherRegistrationSerializer(data = request.data)
+		data = {}
 		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATE)
-		return Response(serializer.errors, status=status.HTT_400_BAD_REQUEST)
+			teacher = serializer.save()
+			data['response'] = "Successfully registered a new teacher."
+			data['email'] = teacher.user.email
+		else:
+			data = serializer.errors
+		return Response(data)
+
+@api_view(['POST'])
+def api_student_registration_view(request):
+	if request.method == 'POST':
+		serializer = StudentRegistrationSerializer(data = request.data)
+		data = {}
+		if serializer.is_valid():
+			student = serializer.save()
+			data['response'] = "Successfully registered a new student."
+			data['email'] = student.user.email
+		else:
+			data = serializer.errors
+		return Response(data)
+
+@api_view(['POST'])
+def api_section_create_view(request):
+	if request.method == 'POST':
+		serializer = SectionCreateSerializer(data = request.data)
+		data = {}
+		if serializer.is_valid():
+			section = serializer.create(request.data)
+			data['response'] = "Successfully created a new section."
+			data['section_code'] = section.section_code
+		else:
+			data = serializer.errors
+		return Response(data)
+
+@api_view(['POST'])
+def api_quiz_create_view(request):
+	if request.method == 'POST':
+		serializer = QuizCreateSerializer(data = request.data)
+		data = {}
+		if ( serializer.is_valid() ):
+			section = serializer.save()
+			data['response'] = "Successfully created a new quiz."
+		else:
+			data = serializer.errors
+		return Response(data)
+
+class QuestionCreateViewSet(generics.CreateAPIView):
+	serializer_class = QuestionCreateSerializer
