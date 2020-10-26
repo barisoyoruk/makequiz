@@ -35,7 +35,7 @@ class User(AbstractBaseUser):
 	objects = AccountManager()
 
 	def __str__(self):
-		return self.email
+		return self.primary_key
 
 	def has_perm(self, perm, obj = None):
 		return self.is_admin
@@ -45,16 +45,17 @@ class User(AbstractBaseUser):
 
 class Teacher(models.Model):
 	user = models.OneToOneField(User, on_delete = models.CASCADE)
-	teacher_ID = models.CharField(max_length = 10, primary_key = True)
-	teacher_field = models.CharField(max_length = 30, default="default_teacher_field")
+
+	teacher_ID = models.CharField(max_length = 10, unique = True)
+	teacher_field = models.CharField(max_length = 30)
 
 	def __str__(self):
 		return self.teacher_ID
 
 class Student(models.Model):
 	user = models.OneToOneField(User, on_delete = models.CASCADE)
-	student_ID = models.CharField(max_length = 10, primary_key = True)
 
+	student_ID = models.CharField(max_length = 10, unique = True)
 	YEAR_IN_SCHOOL_CHOICES = [
 		( 'FR', 'Freshman' ),
 		( 'SO', 'Sophomore' ),
@@ -66,39 +67,50 @@ class Student(models.Model):
 	def __str__(self):
 		return student_ID
 
-class Quiz(models.Model):
-	quiz_topic = models.CharField(max_length = 50)
-	quiz_field = models.CharField(max_length = 30)
-	quiz_no = models.CharField(max_length = 2)
-	grade = models.IntegerField(blank = True)	
-	publication_date = models.DateTimeField('date published', default = datetime.now)
-	due_date = models.DateTimeField('due date', default = datetime.now)
-	
-	QUIZ_STATUS = [
-		('NOT_SUBMITED', 0),
-		('SUBMITTED', 1),
-		('GRADED', 2),
-	]
-	quiz_status = models.IntegerField(choices = QUIZ_STATUS)
-
-	def __str__(self):
-		return self.quiz_topic + " " + quiz_no + " " + grade 
-
-class Question(models.Model):
-	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE)
-	question_text = models.TextField(max_length = 1000)
-	question_answer = models.TextField(max_length = 1000)
-	question_worth = models.IntegerField()
-
-	def __str__(self):
-		return self.question_text + " " + question_worth
-
 class Section(models.Model):
-	section_code = models.CharField(primary_key=True, max_length=10) #MATH201-13
-
-	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE)
-	students = models.ManyToManyField(Student)
-	quizes = models.ManyToManyField(Quiz)
+	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "section")
+	students = models.ManyToManyField(Student, related_name = "section")
+	
+	section_code = models.CharField(unique = True, max_length = 10) #MATH201-13
+	semester_time = models.CharField(max_length = 11 ) #2019-SPRING
 
 	def __str__(self):
 		return section_code
+
+class Quiz(models.Model):
+	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "quiz")
+
+	quiz_topic = models.CharField(max_length = 50)
+	quiz_field = models.CharField(max_length = 30)
+	quiz_no = models.CharField(max_length = 2)
+
+class Question(models.Model):
+	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "question")
+
+	question_prompt = models.TextField(max_length = 1000)
+	question_worth = models.IntegerField()
+
+class Assignment(models.Model):
+	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "assignment")
+	quiz = models.ForeingKey(Quiz, on_delete = models.CASCADE, related_name = "assignment")
+
+	publication_date = models.DateTimeField('date published')
+	due_date = models.DateTimeField('due date')
+
+class Answer(models.Model):
+	submission = models.ForeignKey(Submission, on_delete = models.CASCADE, related_name = "answer")
+	question = models.ForeingKey(Question, on_delete = models.CASCADE, related_name = "answer")
+
+	answer_text = models.CharField(max_length = 1000)
+
+class Submission(models.Model):
+	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "submission")
+	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "submission")
+
+	submission_data = models.DateTimeField('date submitted')
+
+class Result(models.Model):
+	submission = models.OneToOneField(Submission, related_name = "result")
+
+	feedback = models.CharField(max_length = 1000)
+	grade = models.IntegerField()
