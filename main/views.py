@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import status, generics, viewsets
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -19,9 +19,14 @@ from main.serializers import (
 	SectionCreateSerializer,
 	SectionStudentAdditionSerializer,
 	QuizCreateSerializer,
-	QuestionCreateSerializer
+	QuestionCreateSerializer,
+	AssignmentCreateSerializer,
+	SubmissionCreateSerializer,
+	AnswerCreateSerializer,
+	ResultCreateSerializer
 	)
 
+#Views for GET and DELETE
 @api_view(['GET', 'DELETE'])
 def api_detail_teacher_view(request, pk):
 
@@ -112,88 +117,21 @@ class QuestionViewSet(generics.RetrieveDestroyAPIView):
 	queryset = Question.objects.get_queryset()
 	serializer_class = QuestionSerializer
 
-class AssignmentViewSet(viewsets.ModelViewSet):
+class AssignmentViewSet(generics.RetrieveDestroyAPIView):
+	queryset = Assignment.objects.get_queryset()
 	serializer_class = AssignmentSerializer
 
-@api_view(['GET', 'DELETE'])
-def api_detail_assignment_view(request, pk):
-# Create your views here.
-	try:
-		assignment = Assignment.objects.get(pk = pk)
-	except assignment.DoesNotExist:
-		return Response(status = status.HTTP_404_NOT_FOUND)
+class SubmissionViewSet(generics.RetrieveDestroyAPIView):
+	queryset = Submission.objects.get_queryset()
+	serializer_class = SubmissionSerializer
 
-	if request.method == 'GET':
-		serializer = AssignmentSerializer(assignment)
-		return Response(serializer.data)
-	elif request.method == 'DELETE':
-		operation = assignment.delete()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
-		else:
-			data["failure"] = "delete failed"
-		return Response(data = data)
+class AnswerViewSet(generics.RetrieveDestroyAPIView):
+	queryset = Answer.objects.get_queryset()
+	serializer_class = AnswerSerializer
 
-@api_view(['GET', 'DELETE'])
-def api_detail_answer_view(request, pk):
-# Create your views here.
-	try:
-		answer = Answer.objects.get(pk = pk)
-	except answer.DoesNotExist:
-		return Response(status = status.HTTP_404_NOT_FOUND)
-
-	if request.method == 'GET':
-		serializer = AnswerSerializer(answer)
-		return Response(serializer.data)
-	elif request.method == 'DELETE':
-		operation = answer.delete()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
-		else:
-			data["failure"] = "delete failed"
-		return Response(data = data)
-
-@api_view(['GET', 'DELETE'])
-def api_detail_submission_view(request, pk):
-# Create your views here.
-	try:
-		submission = Submission.objects.get(pk = pk)
-	except submission.DoesNotExist:
-		return Response(status = status.HTTP_404_NOT_FOUND)
-
-	if request.method == 'GET':
-		serializer = SubmissionSerializer(submission)
-		return Response(serializer.data)
-	elif request.method == 'DELETE':
-		operation = submission.delete()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
-		else:
-			data["failure"] = "delete failed"
-		return Response(data = data)
-
-@api_view(['GET', 'DELETE'])
-def api_detail_result_view(request, pk):
-# Create your views here.
-	try:
-		result = Result.objects.get(pk = pk)
-	except result.DoesNotExist:
-		return Response(status = status.HTTP_404_NOT_FOUND)
-
-	if request.method == 'GET':
-		serializer = ResultSerializer(result)
-		return Response(serializer.data)
-	elif request.method == 'DELETE':
-		operation = result.delete()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
-		else:
-			data["failure"] = "delete failed"
-		return Response(data = data)
+class ResultViewSet(generics.RetrieveDestroyAPIView):
+	queryset = Result.objects.get_queryset()
+	serializer_class = ResultSerializer
 
 @api_view(['POST'])
 def api_teacher_registration_view(request):
@@ -227,7 +165,7 @@ def api_section_create_view(request):
 		serializer = SectionCreateSerializer(data = request.data)
 		data = {}
 		if serializer.is_valid():
-			section = serializer.create(request.data)
+			section = serializer.save()
 			data['response'] = "Successfully created a new section."
 			data['section_code'] = section.section_code
 		else:
@@ -248,3 +186,15 @@ def api_quiz_create_view(request):
 
 class QuestionCreateViewSet(generics.CreateAPIView):
 	serializer_class = QuestionCreateSerializer
+
+class AssignmentCreateViewSet(generics.CreateAPIView):
+	serializer_class = AssignmentCreateSerializer
+
+class SubmissionCreateViewSet(generics.CreateAPIView):
+	serializer_class = SubmissionCreateSerializer
+
+class AnswerCreateViewSet(generics.CreateAPIView):
+	serializer_class = AnswerCreateSerializer
+
+class ResultCreateViewSet(generics.CreateAPIView):
+	serializer_class = ResultCreateSerializer

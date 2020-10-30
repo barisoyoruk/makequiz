@@ -101,7 +101,7 @@ class Submission(models.Model):
 	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "submission")
 	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "submission")
 
-	submission_data = models.DateTimeField('date submitted')
+	submission_date = models.DateTimeField('date submitted')
 
 class Answer(models.Model):
 	submission = models.ForeignKey(Submission, on_delete = models.CASCADE, related_name = "answer")

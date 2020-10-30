@@ -4,6 +4,7 @@ from main.models import (
 	Question, Assignment, Answer, Submission, Result
 )
 
+#Serializers for GET and DELETE
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
@@ -43,7 +44,6 @@ class QuizSerializer(serializers.ModelSerializer):
 		model = Quiz
 		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher']
 
-
 class QuestionSerializer(serializers.ModelSerializer):
 	quiz = serializers.PrimaryKeyRelatedField(read_only = True)
 
@@ -82,6 +82,7 @@ class ResultSerializer(serializers.ModelSerializer):
 		model = Result
 		fields = ['submission', 'grade', 'feedback']
 
+#Serializers for POST
 class UserRegistrationSerializer(serializers.ModelSerializer):
 	password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
@@ -140,77 +141,73 @@ class StudentRegistrationSerializer(serializers.ModelSerializer):
 		return student
 
 class SectionCreateSerializer(serializers.ModelSerializer):
-	teacher_pk = serializers.IntegerField()
+	teacher = serializers.PrimaryKeyRelatedField(queryset = Teacher.objects.all())
 
 	class Meta:
 		model = Section
-		fields = ['teacher_pk', 'section_code', 'semester_time']
+		fields = ['teacher', 'section_code', 'semester_time']
 
-	def create(self, validated_data):
-		teacher_pk_data = validated_data.pop('teacher_pk')
+class QuizCreateSerializer(serializers.ModelSerializer):
+	teacher = serializers.PrimaryKeyRelatedField(queryset = Teacher.objects.all())
 
-		try:
-			teacher = Teacher.objects.get(pk = teacher_pk_data)
-		except Teacher.DoesNotExist:
-			raise serializers.ValidationError({'teacher_pk':'There is no teacher with this pk'})
+	class Meta:
+		model = Quiz
+		fields = ['teacher', 'quiz_topic', 'quiz_field', 'quiz_no']
 
-		section = Section.objects.create(teacher = teacher, **validated_data)
-		return section
 
+class QuestionCreateSerializer(serializers.ModelSerializer):
+	quiz = serializers.PrimaryKeyRelatedField(queryset = Quiz.objects.all())
+
+	class Meta:
+		model = Question
+		fields = ['quiz', 'question_prompt', 'question_worth']
+
+
+class AssignmentCreateSerializer(serializers.ModelSerializer):
+	student = serializers.PrimaryKeyRelatedField(queryset = Student.objects.all())
+	quiz = serializers.PrimaryKeyRelatedField(queryset = Quiz.objects.all())
+
+	class Meta:
+		model = Assignment
+		fields = ['student', 'quiz', 'publication_date', 'due_date']
+
+class SubmissionCreateSerializer(serializers.ModelSerializer):
+	quiz = serializers.PrimaryKeyRelatedField(queryset = Quiz.objects.all())
+	student = serializers.PrimaryKeyRelatedField(queryset = Student.objects.all() )
+
+	class Meta:
+		model = Submission
+		fields = ["student", "quiz", "submission_date"]
+
+class AnswerCreateSerializer(serializers.ModelSerializer):
+	submission = serializers.PrimaryKeyRelatedField(queryset = Submission.objects.all())
+	question = serializers.PrimaryKeyRelatedField(queryset = Question.objects.all())
+
+	class Meta:
+		model = Answer
+		fields = ["submission", "question", "answer_text"]
+
+class ResultCreateSerializer(serializers.ModelSerializer):
+	submission = serializers.PrimaryKeyRelatedField(queryset = Submission.objects.all())
+
+	class Meta:
+		model = Result
+		fields = ["submission", "feedback", "grade"]
+
+#Serializers for PUT
 class SectionStudentAdditionSerializer(serializers.ModelSerializer):
-	students = serializers.JSONField()
-
+	students = serializers.PrimaryKeyRelatedField(many = True, queryset = Student.objects.all())
 
 	class Meta:
 		model = Section
 		fields = ['students']
 
 	def save(self):
-		student_pk_data = self.validated_data.pop('students')
+		students = self.validated_data.pop('students')
 
-		try:
-			student = Student.objects.get(pk = student_pk_data)
-		except Student.DoesNotExist:
-			raise serializers.ValidationError({'students':'There is no student with this pk'})
-
-		if not student in self.instance.students.all():
-			self.instance.students.add(student)
-			return self.instance
-		else:
-			raise serializers.ValidationError({'students':'Student already exist in the section'})
-
-class QuizCreateSerializer(serializers.Serializer):
-	teacher_pk = serializers.IntegerField()
-
-	class Meta:
-		model = Quiz
-		fields = ['teacher_pk', 'quiz_topic', 'quiz_field', 'quiz_no']
-
-	def save(self):
-		teacher_pk_data = self.validated_data.pop('teacher_pk')
-
-		try: 
-			teacher = Teacher.objects.get(pk = teacher_pk_data)
-		except Teacher.DoesNotExist:
-			raise serializers.ValidationError({'teacher_pk':'There is no teacher with this pk'})
-
-		quiz = Quiz.objects.create(teacher = teacher, **self.validated_data)
-		return quiz
-
-class QuestionCreateSerializer(serializers.ModelSerializer):
-	quiz_pk = serializers.IntegerField()
-
-	class Meta:
-		model = Question
-		fields = ['quiz_pk', 'question_prompt', 'question_worth']
-
-	def save(self):
-		quiz_pk_data = self.validated_data.pop('quiz_pk')
-
-		try:
-			quiz = Quiz.objects.get(pk = quiz_pk_data)
-		except Quiz.DoesNotExist:
-			raise serializers.ValidationError({'teacher_pk':'There is no teacher with this pk'})
-
-		question = Question.objects.create(quiz = quiz, **self.validated_data)
-		return question
+		for student in students:
+			if not student in self.instance.students.all():
+				self.instance.students.add(student)
+				return self.instance
+			else:
+				raise serializers.ValidationError({'students':'Some students have already existed in the section'})
