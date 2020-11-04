@@ -39,10 +39,11 @@ class SectionSerializer(serializers.ModelSerializer):
 
 class QuizSerializer(serializers.ModelSerializer):
 	teacher = serializers.PrimaryKeyRelatedField(read_only = True)
+	question = serializers.PrimaryKeyRelatedField(read_only = True, many = True)
 
 	class Meta:
 		model = Quiz
-		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher']
+		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher', 'question']
 
 class QuestionSerializer(serializers.ModelSerializer):
 	quiz = serializers.PrimaryKeyRelatedField(read_only = True)

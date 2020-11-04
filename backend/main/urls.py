@@ -1,5 +1,4 @@
-from django.urls import path
-
+from django.urls import path, include
 from main.views import (
 	api_detail_teacher_view, 
 	api_detail_student_view, 
@@ -20,12 +19,13 @@ from main.views import (
 	SubmissionCreateViewSet,
 	ResultCreateViewSet,
 )
+from rest_framework.authtoken.views import obtain_auth_token
 
 app_name = 'main'
 
 urlpatterns = [
-	path('teacher/<pk>', api_detail_teacher_view),
-	path('student/<pk>', api_detail_student_view),
+	path('teacher/', api_detail_teacher_view),
+	path('student/', api_detail_student_view),
 	path('section/<pk>', api_detail_section_view),
 	path('quiz/<pk>', api_detail_quiz_view),
 	path('question/<pk>', QuestionViewSet.as_view()),
@@ -35,6 +35,8 @@ urlpatterns = [
 	path('result/<pk>', ResultViewSet.as_view() ),
 	path('teacher/register/', api_teacher_registration_view),
 	path('student/register/', api_student_registration_view),
+	path('teacher/login/', obtain_auth_token),
+	path('student/login/', obtain_auth_token),
 	path('section/create/', api_section_create_view),
 	path('quiz/create/', api_quiz_create_view),
 	path('question/create/', QuestionCreateViewSet.as_view()),
@@ -42,4 +44,8 @@ urlpatterns = [
 	path('answer/create/', AnswerCreateViewSet.as_view()),
 	path('submission/create/', SubmissionCreateViewSet.as_view()),
 	path('result/create/', ResultCreateViewSet.as_view()),
+]
+
+urlpatterns += [
+	path('api-auth/', include('rest_framework.urls')),
 ]
