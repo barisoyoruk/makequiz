@@ -245,6 +245,7 @@ class ResultViewSet(generics.RetrieveDestroyAPIView):
 def api_teacher_registration_view(request):
 
 	if request.method == 'POST':
+		request.data['user']['user_type'] = 'TE'
 		serializer = TeacherRegistrationSerializer(data = request.data)
 		data = {}
 		if serializer.is_valid():
@@ -252,14 +253,16 @@ def api_teacher_registration_view(request):
 			data['response'] = "Successfully registered a new teacher."
 			data['email'] = teacher.user.email
 			data['token'] = Token.objects.get(user=teacher.user).key
+			return Response(data)
 		else:
 			data = serializer.errors
-		return Response(data)
+			return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def api_student_registration_view(request):
 
 	if request.method == 'POST':
+		request.data['user']['user_type'] = 'ST'
 		serializer = StudentRegistrationSerializer(data = request.data)
 		data = {}
 		if serializer.is_valid():
@@ -267,9 +270,10 @@ def api_student_registration_view(request):
 			data['response'] = "Successfully registered a new student."
 			data['email'] = student.user.email
 			data['token'] = Token.objects.get(user=student.user).key
+			return Response(data)
 		else:
 			data = serializer.errors
-		return Response(data)
+			return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

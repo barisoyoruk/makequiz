@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'main.apps.MainConfig',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'makequiz.urls'
@@ -127,3 +129,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
+CORS_ORIGIN_WHITELIST = (
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://localhost:3000",
+)

@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver 
+from django.db.models.signals import post_delete
 from rest_framework.authtoken.models import Token
 
 class AccountManager(BaseUserManager):
@@ -34,6 +35,13 @@ class User(AbstractBaseUser):
 	is_staff = models.BooleanField(default = False)
 	is_admin = models.BooleanField(default = False)
 
+	USER_TYPE_CHOICES = [
+		( 'ST', 'Student' ),
+		( 'TE', 'Teacher' ),
+		( 'NO', 'None' ),
+	]
+	user_type = models.CharField(max_length = 10, choices = USER_TYPE_CHOICES, default='NO')
+
 	USERNAME_FIELD = 'email'
 
 	objects = AccountManager()
@@ -61,10 +69,10 @@ class Student(models.Model):
 
 	student_ID = models.CharField(max_length = 10, unique = True)
 	YEAR_IN_SCHOOL_CHOICES = [
-		( 'FR', 'Freshman' ),
-		( 'SO', 'Sophomore' ),
-		( 'JU', 'Junior' ),
-		( 'SE', 'Senior' ),
+		( 'Freshman', 'Freshman' ),
+		( 'Sophomore', 'Sophomore' ),
+		( 'Junior', 'Junior' ),
+		( 'Senior', 'Senior' ),
 	]
 	student_class = models.CharField(max_length = 10, choices = YEAR_IN_SCHOOL_CHOICES)
 
@@ -123,3 +131,13 @@ class Result(models.Model):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
 	if created:
 		Token.objects.create(user=instance)
+
+@receiver(post_delete, sender=Teacher)
+def post_delete_user(sender, instance, *args, **kwargs):
+    if instance.user: # just in case user is not specified
+        instance.user.delete()
+
+@receiver(post_delete, sender=Student)
+def post_delete_user(sender, instance, *args, **kwargs):
+    if instance.user: # just in case user is not specified
+        instance.user.delete()
