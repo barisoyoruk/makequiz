@@ -5,8 +5,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 
-from main.models import Teacher, Student, Section, Quiz, Question, Assignment, Answer, Submission, Result
+from main.models import User, Teacher, Student, Section, Quiz, Question, Assignment, Answer, Submission, Result
 from main.serializers import (
 	TeacherSerializer,
 	StudentSerializer,
@@ -32,47 +33,63 @@ from main.serializers import (
 #Views for GET and DELETE
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated])
-def api_detail_teacher_view(request): 
+def api_detail_teacher_view(request, pk): 
 
-	user = request.user
 	try:
-		teacher = user.teacher
+		teacher = Teacher.objects.get(pk=pk)
 	except Teacher.DoesNotExist:
-		return Response(status=status.HTTP_400_BAD_REQUEST)
+		return Response(status=status.HTTP_404_NOT_FOUND)
 
 	if request.method == 'GET':
 		serializer = TeacherSerializer(teacher)
 		return Response(serializer.data)
 	elif request.method == 'DELETE':
-		operation = teacher.delete()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
+		auth_user = request.user
+		try:
+			auth_teacher = auth_user.teacher
+		except Teacher.DoesNotExist:
+			auth_teacher = None
+
+		if auth_teacher & teacher.id == auth_teacher.id:
+			operation = teacher.delete()
+			data = {}
+			if operation:
+				data["success"] = "delete successful"
+			else:
+				data["failure"] = "delete failed"
+			return Response(data=data)
 		else:
-			data["failure"] = "delete failed"
-		return Response(data=data)
+			return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'DELETE'])
 @permission_classes([IsAuthenticated])
-def api_detail_student_view(request):
-	
-	user = request.user
+def api_detail_student_view(request, pk):
+
 	try:
-		student = user.student
+		student = Student.objects.get(pk=pk)
 	except Student.DoesNotExist:
 		return Response(status=status.HTTP_404_NOT_FOUND)
-
+	
 	if request.method == 'GET':
 		serializer = StudentSerializer(student)
 		return Response(serializer.data)
 	elif request.method == 'DELETE':
-		operation = student.delete()
-		data = {}
-		if operation:
-			data["success"] = "delete successful"
+		auth_user = request.user
+		try:
+			auth_student = auth_user.student
+		except Student.DoesNotExist:
+			auth_student = None
+
+		if auth_student & student.id == auth_student.id:
+			operation = student.delete()
+			data = {}
+			if operation:
+				data["success"] = "delete successful"
+			else:
+				data["failure"] = "delete failed"
+			return Response(data=data)
 		else:
-			data["failure"] = "delete failed"
-		return Response(data=data)
+			return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'DELETE', 'PUT'])
 @permission_classes([IsAuthenticated])
@@ -93,7 +110,7 @@ def api_detail_section_view(request, pk):
 	except Teacher.DoesNotExist:
 		return Response(status=status.HTTP_400_BAD_REQUEST)
 
-	if section in teacher.sections.all():
+	if section in teacher.section.all():
 		if request.method == 'DELETE':
 			operation = section.delete()
 			data = {}
@@ -103,9 +120,21 @@ def api_detail_section_view(request, pk):
 				data["failure"] = "delete failed"
 			return Response(data = data)
 		elif request.method == 'PUT':
-			serializer = SectionStudentAdditionSerializer(section, data = request.data)
+			student_email = request.data['students'][0]
+
+			try:
+				student = User.objects.get(email=student_email)
+			except User.DoesNotExist:
+				return Response(status=status.HTTP_404_NOT_FOUND)
+			except User.student.RelatedObjectDoesNotExist:
+				return Response(status=status.HTTP_400_BAD_REQUEST)
+
+			
+			student_pk_data = {"students": [student.student.id]}
+			serializer = SectionStudentAdditionSerializer(section, data=student_pk_data)
 			if serializer.is_valid():
 				serializer.save()
+				serializer = StudentSerializer(student.student)
 				return Response(serializer.data)
 			return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 		return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -405,3 +434,26 @@ class ResultCreateViewSet(generics.CreateAPIView):
 		self.perform_create(serializer)
 		headers = self.get_success_headers(serializer.data)
 		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class CustomAuthToken(ObtainAuthToken):
+	def post(self, request, *args, **kwargs):
+		serializer = self.serializer_class(data=request.data,
+		context={'request': request})
+		serializer.is_valid(raise_exception=True)
+		user = serializer.validated_data['user']
+		token, created = Token.objects.get_or_create(user=user)
+
+		try:
+			user_pk = user.teacher.pk
+		except Teacher.DoesNotExist:
+			try:
+				user_pk = user.student.pk
+			except StudentDoesNotExist:
+				user_pk = -1
+
+		return Response({
+			'token': token.key,
+			'user_id': user_pk,
+			'email': user.email,
+			'user_type': user.user_type,
+		})

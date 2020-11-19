@@ -1,35 +1,14 @@
 import {useHistory} from 'react-router-dom';
 
 function LandingPage() {
-
-    const history = useHistory();
-
-    const goStudentLoginPage = e => {
-        e.preventDefault();
-        history.push('/StudentLoginPage');
-    }
-
-    const goStudentSignUpPage = e => {
-        e.preventDefault();
-        history.push('/StudentRegisterPage');
-    }
-
-    const goTeacherLoginPage = e => {
-        e.preventDefault();
-        history.push('/TeacherLoginPage');
-    }
-
-    const goTeacherSignUpPage = e => {
-        e.preventDefault();
-        history.push('/TeacherRegisterPage');
-    }
+    let history = useHistory();
 
     return (
         <div id="landing_div">
-            <input type="submit" value="Student Login" onClick={goStudentLoginPage}></input>
-            <input type="submit" value="Student Sign Up" onClick={goStudentSignUpPage}></input>
-            <input type="submit" value="Teacher Login" onClick={goTeacherLoginPage}></input>
-            <input type="submit" value="Teacher Sign Up" onClick={goTeacherSignUpPage}></input>
+            <input type="submit" value="Student Login" onClick={()=>history.push('/StudentLoginPage')}></input>
+            <input type="submit" value="Student Sign Up" onClick={()=>history.push('/StudentRegisterPage')}></input>
+            <input type="submit" value="Teacher Login" onClick={()=>history.push('/TeacherLoginPage')}></input>
+            <input type="submit" value="Teacher Sign Up" onClick={()=>history.push('/TeacherRegisterPage')}></input>
         </div>
     )
 }

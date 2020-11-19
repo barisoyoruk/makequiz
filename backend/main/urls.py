@@ -18,14 +18,15 @@ from main.views import (
 	AnswerCreateViewSet,
 	SubmissionCreateViewSet,
 	ResultCreateViewSet,
+	CustomAuthToken
 )
 from rest_framework.authtoken.views import obtain_auth_token
 
 app_name = 'main'
 
 urlpatterns = [
-	path('teacher/', api_detail_teacher_view),
-	path('student/', api_detail_student_view),
+	path('teacher/<pk>', api_detail_teacher_view),
+	path('student/<pk>', api_detail_student_view),
 	path('section/<pk>', api_detail_section_view),
 	path('quiz/<pk>', api_detail_quiz_view),
 	path('question/<pk>', QuestionViewSet.as_view()),
@@ -35,8 +36,8 @@ urlpatterns = [
 	path('result/<pk>', ResultViewSet.as_view() ),
 	path('teacher/register/', api_teacher_registration_view),
 	path('student/register/', api_student_registration_view),
-	path('teacher/login/', obtain_auth_token),
-	path('student/login/', obtain_auth_token),
+	path('teacher/login/', CustomAuthToken.as_view()),
+	path('student/login/', CustomAuthToken.as_view()),
 	path('section/create/', api_section_create_view),
 	path('quiz/create/', api_quiz_create_view),
 	path('question/create/', QuestionCreateViewSet.as_view()),
@@ -48,4 +49,5 @@ urlpatterns = [
 
 urlpatterns += [
 	path('api-auth/', include('rest_framework.urls')),
+	path(r'api-token-auth/', include('rest_framework.urls')),
 ]

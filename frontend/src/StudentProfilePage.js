@@ -1,35 +1,22 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
-import {trackPromise} from 'react-promise-tracker';
-import axios from 'axios';
-import {config} from './config'
 
 function StudentProfilePage() {
     const history = useHistory();
-    const token = sessionStorage.getItem('user_token');
-    
-    const [student_email, set_student_email] = React.useState();
-    const [student_first_name, set_student_first_name] = React.useState();
-    const [student_last_name, set_student_last_name] = React.useState();
-    const [student_ID, set_student_ID] = React.useState();
-    const [student_class, set_student_class] = React.useState();
 
-    trackPromise (
-        axios.get( config.api_url + '/student/', {
-            headers: {Authorization: "Token " + token}
-          })
-        .then(function(response) {
-            set_student_email(response.data['user']['email']);
-            set_student_first_name(response.data['user']['first_name']);
-            set_student_last_name(response.data['user']['last_name']);
-            set_student_ID(response.data['student_ID']);
-            set_student_class(response.data['student_class'])
-        })
-        .catch(function(error) {
-        })
-        .then(function() {
-        })
-    );
+    const [student_email, set_student_email] = React.useState("");
+    const [student_first_name, set_student_first_name] = React.useState("");
+    const [student_last_name, set_student_last_name] = React.useState("");
+    const [student_ID, set_student_ID] = React.useState("");
+    const [student_class,set_student_class] = React.useState("");
+
+    useEffect(()=>{
+        set_student_email(sessionStorage.getItem('student_email'));
+        set_student_first_name(sessionStorage.getItem('student_first_name'));
+        set_student_last_name(sessionStorage.getItem('student_last_name'));
+        set_student_ID(sessionStorage.getItem('student_ID'));
+        set_student_class(sessionStorage.getItem('student_class'));
+    }, [])
 
     return (
         <div id="student_profile_div">
@@ -52,6 +39,7 @@ function StudentProfilePage() {
                         </tr>
                     </tbody>
                 </table>
+                <button onClick={()=>history.push('/StudentMainPage')}>Main Page</button>
             </div>
         </div>
     )

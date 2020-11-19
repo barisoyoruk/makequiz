@@ -1,35 +1,46 @@
-import {config} from './config'
 import React from 'react';
 import {trackPromise, usePromiseTracker} from 'react-promise-tracker';
-import {useHistory} from 'react-router-dom';
 import Loader from 'react-loader-spinner';
 import axios from 'axios';
+import {config} from './config'
 
-function TeacherLoginPage() {
-    const [errorMessage,setErrorMessage] = React.useState("");
-	const [showErrorMessage, setShowErrorMessage] = React.useState(false);
-	const [isSubmitEnabled, enableDisableSubmit] = React.useState(true);
+class TeacherLoginPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            errorMessage: '',
+            showErrorMessage: false,
+            isSubmitEnabled: true,
+        };
+    }
 
-    const history = useHistory();
-
-    const sendTeacherLoginForm = e => {
+    sendTeacherLoginForm(e) {
         e.preventDefault();
-        // Users should not be able to use submit button while sending and fetching data from REST Api 
-        enableDisableSubmit(false);
+        this.setState({isSubmitEnabled: false});
         
         let request_body = {
             'username': e.target.teacher_email.value,
             'password': e.target.teacher_password.value
         };
         
+        let errorText;
+        var self = this;
         trackPromise(
             axios.post(config.api_url + '/teacher/login/', request_body)
             .then(function(response) {
-                sessionStorage.setItem('user_token', response.data['token']);
-                history.push('/TeacherMainPage');
+                if (response.data['user_type'] === 'TE') {
+                    sessionStorage.setItem('token', response.data['token']);
+                    sessionStorage.setItem('teacher_pk', response.data['user_id']);
+                    console.log(response.data['user_id']);
+                    self.props.history.push('/TeacherMainPage');
+                }
+                else {
+                    errorText = "Please go Student Login Page"
+                    self.setState({errorMessage: errorText});
+                    self.setState({showErrorMessage: true});
+                }
             })
             .catch(function(error) {
-	    		let errorText;
 	    		// Server Responded. Something wrong with crediatn
 	    		if (error.response) {
                     errorText = "Please control your email and password.";
@@ -42,68 +53,69 @@ function TeacherLoginPage() {
 	    			errorText = [error.message];
 	    		}
 	    		
-	    		setErrorMessage(errorText);
-	    		setShowErrorMessage(true);
+	    		self.setState({errorMessage: errorText});
+	    		self.setState({showErrorMessage: true});
             })
-            .then(function () {
-                enableDisableSubmit(true);
+            .then(function() {
+                self.setState({isSubmitEnabled: true});
             })
         );
     }
 
-    const goTeacherSignUpPage = e => {
-        e.preventDefault();
-        history.push('/TeacherRegisterPage');
+    goTeacherSignUpPage() {
+        this.props.history.push('/TeacherRegisterPage')
     }
 
-    return (
-        <div id="teacher_login_div">
-            <form id="teacher_login_form" onSubmit={sendTeacherLoginForm}>
-                <div>
-                    <label htmlFor="teacher_email">Email: </label>
-                    <input type="email" name="teacher_email" placeholder="*required" required/>
-                </div>
-                <div>
-                    <label htmlFor="teacher_password">Password: </label>
-                    <input type="password" name="teacher_password" placeholder="*requried" required/>
-                </div>
-                <div>
-                    { isSubmitEnabled ?
-                        ( <input type="submit" value="Login"></input> ):
-                        ( <input type="submit" value="Login" disabled></input> )
-                    }
-                    <LoadingIndicator/>
-                </div>
-            </form>
-            { isSubmitEnabled ?
-                ( <input type="submit" value="Sign Up" onClick={goTeacherSignUpPage}></input> ):
-                ( <input type="submit" value="Sign Up" disabled></input> )
-            }
-            {showErrorMessage ? 
-                (<div id="login_error_div">
-                    <p>
-                        {errorMessage}	
-                    </p>
-                </div>) : null
-            }	
-        </div>
-    )
+    render() {
+        return (
+            <div id="teacher_login_div">
+                <form id="teacher_login_form" onSubmit={(e)=>this.sendTeacherLoginForm(e)}>
+                    <div>
+                        <label htmlFor="teacher_email">Email: </label>
+                        <input type="email" name="teacher_email" placeholder="*required" required/>
+                    </div>
+                    <div>
+                        <label htmlFor="teacher_password">Password: </label>
+                        <input type="password" name="teacher_password" placeholder="*requried" required/>
+                    </div>
+                    <div>
+                        {this.state.isSubmitEnabled ?
+                            ( <input type="submit" value="Login"></input> ):
+                            ( <input type="submit" value="Login" disabled></input> )
+                        }
+                        <LoadingIndicator/>
+                    </div>
+                </form>
+                {this.state.isSubmitEnabled ?
+                    ( <input type="submit" value="Sign Up" onClick={()=>this.goTeacherSignUpPage()}></input> ):
+                    ( <input type="submit" value="Sign Up" disabled></input> )
+                }
+                {this.state.showErrorMessage ? 
+                    (<div id="login_error_div">
+                        <p>
+                            {this.state.errorMessage}	
+                        </p>
+                    </div>) : null
+                }	
+            </div>
+        )
+    }
 }
 
 const LoadingIndicator = props => {
 	const { promiseInProgress } = usePromiseTracker();
 
-  return promiseInProgress && 
-    <div
-      style={{
-        display: "inline-block",
-        position: "absolute",
-        left: "70px",
-        top: "45px",
-      }}
-    >
-      <Loader type="ThreeDots" color="#000" height="30" width="30"/>
-    </div>
+    return promiseInProgress && 
+        <div
+        style={{
+            display: "inline-block",
+            position: "absolute",
+            left: "70px",
+            top: "45px",
+        }}
+        >
+        <Loader type="ThreeDots" color="#000" height="30" width="30"/>
+        </div>
 }
 
 export default TeacherLoginPage;

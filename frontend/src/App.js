@@ -9,6 +9,7 @@ import TeacherMainPage from './TeacherMainPage'
 import StudentMainPage from './StudentMainPage'
 import StudentProfilePage from './StudentProfilePage'
 import TeacherProfilePage from './TeacherProfilePage'
+import TeacherSectionPage from './TeacherSectionPage'
 
 function App() {
     return(
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/StudentMainPage" exact component={StudentMainPage}/>
                     <Route path="/StudentProfilePage" exact component={StudentProfilePage}/>
                     <Route path="/TeacherProfilePage" exact component={TeacherProfilePage}/>
+                    <Route path="/TeacherSectionPage" exact component={TeacherSectionPage}/>
                 </Switch>
             </div>
         </Router>

@@ -17,7 +17,7 @@ class TeacherSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Teacher
-		fields = ['user', 'teacher_ID', 'teacher_field', 'section', 'quiz']
+		fields = ['user', 'teacher_ID', 'teacher_field', 'section', 'quiz', 'pk']
 
 class StudentSerializer(serializers.ModelSerializer):
 	user = UserSerializer()
@@ -27,7 +27,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Student
-		fields = ['user', 'student_ID', 'student_class', 'section', 'assignment', 'submission']
+		fields = ['user', 'student_ID', 'student_class', 'section', 'assignment', 'submission', 'pk']
 
 class SectionSerializer(serializers.ModelSerializer):
 	teacher = serializers.PrimaryKeyRelatedField(read_only = True)
