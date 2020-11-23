@@ -31,7 +31,6 @@ class TeacherLoginPage extends React.Component {
                 if (response.data['user_type'] === 'TE') {
                     sessionStorage.setItem('token', response.data['token']);
                     sessionStorage.setItem('teacher_pk', response.data['user_id']);
-                    console.log(response.data['user_id']);
                     self.props.history.push('/TeacherMainPage');
                 }
                 else {

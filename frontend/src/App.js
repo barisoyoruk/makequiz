@@ -11,6 +11,9 @@ import StudentProfilePage from './StudentProfilePage';
 import TeacherProfilePage from './TeacherProfilePage';
 import TeacherSectionPage from './TeacherSectionPage';
 import StudentSectionPage from './StudentSectionPage';
+import TeacherQuizPage from './TeacherQuizPage';
+import TeacherCreateQuizPage from './TeacherCreateQuizPage';
+import StudentAssignmentPage from './StudentAssignmentPage';
 
 function App() {
     return(
@@ -28,6 +31,9 @@ function App() {
                     <Route path="/TeacherProfilePage" exact component={TeacherProfilePage}/>
                     <Route path="/TeacherSectionPage" exact component={TeacherSectionPage}/>
                     <Route path="/StudentSectionPage" exact component={StudentSectionPage}/>
+                    <Route path="/TeacherQuizPage" exact component={TeacherQuizPage}/>
+                    <Route path="/TeacherCreateQuizPage" exact component={TeacherCreateQuizPage}/>
+                    <Route path="/StudentAssignmentPage" exact component={StudentAssignmentPage}/>
                 </Switch>
             </div>
         </Router>

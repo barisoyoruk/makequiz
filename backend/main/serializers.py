@@ -17,7 +17,7 @@ class TeacherSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Teacher
-		fields = ['user', 'teacher_ID', 'teacher_field', 'section', 'quiz', 'pk']
+		fields = ['user', 'teacher_ID', 'teacher_field', 'section', 'quiz']
 
 class StudentSerializer(serializers.ModelSerializer):
 	user = UserSerializer()
@@ -27,7 +27,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Student
-		fields = ['user', 'student_ID', 'student_class', 'section', 'assignment', 'submission', 'pk']
+		fields = ['user', 'student_ID', 'student_class', 'section', 'assignment', 'submission']
 
 class SectionSerializer(serializers.ModelSerializer):
 	teacher = serializers.PrimaryKeyRelatedField(read_only = True)
@@ -39,18 +39,18 @@ class SectionSerializer(serializers.ModelSerializer):
 
 class QuizSerializer(serializers.ModelSerializer):
 	teacher = serializers.PrimaryKeyRelatedField(read_only = True)
-	question = serializers.PrimaryKeyRelatedField(read_only = True, many = True)
+	questions = serializers.PrimaryKeyRelatedField(read_only = True, many = True)
 
 	class Meta:
 		model = Quiz
-		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher', 'question']
+		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher', 'questions', 'quiz_no', 'id'] 
 
 class QuestionSerializer(serializers.ModelSerializer):
 	quiz = serializers.PrimaryKeyRelatedField(read_only = True)
 
 	class Meta:
 		model = Question
-		fields = ['quiz', 'question_prompt', 'question_worth']
+		fields = ['quiz', 'question_prompt', 'question_worth', 'question_no']
 
 class AssignmentSerializer(serializers.ModelSerializer):
 	student = serializers.PrimaryKeyRelatedField(read_only = True)
@@ -162,7 +162,7 @@ class QuestionCreateSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Question
-		fields = ['quiz', 'question_prompt', 'question_worth']
+		fields = ['quiz', 'question_prompt', 'question_worth', 'question_no']
 
 
 class AssignmentCreateSerializer(serializers.ModelSerializer):

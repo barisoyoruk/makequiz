@@ -17,7 +17,7 @@ class TeacherSectionPage extends React.Component {
         const teacher_sections = JSON.parse(sessionStorage.getItem('teacher_sections'));
         const self = this;
         for (let section_pk of teacher_sections) {
-            axios.get( config.api_url + '/section/' + section_pk, {
+            axios.get(config.api_url + '/section/' + section_pk, {
                         headers: {Authorization: "Token " + token}
             })
             .then(function(response) {
@@ -142,16 +142,15 @@ class TeacherSectionPage extends React.Component {
             </div>
         );
 
-
-
         return (
             <div>
+                <button onClick={()=>this.props.history.push('/TeacherMainPage')}>Main Page</button>
+                <br/>
+                <br/>
                 <NewSectionComponent createNewSection={this.createNewSection}/>
                 <br/>
                 <br/>
-                <ul>
-                    {listItems}
-                </ul>
+                {listItems}
             </div>
         )
     }

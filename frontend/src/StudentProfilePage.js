@@ -31,6 +31,7 @@ function StudentProfilePage() {
                         </tr>
                     </tbody>
                 </table>
+                <br/>
                 <button onClick={()=>history.push('/StudentMainPage')}>Main Page</button>
             </div>
         </div>

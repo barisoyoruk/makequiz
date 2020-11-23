@@ -129,7 +129,6 @@ def api_detail_section_view(request, pk):
 			except User.student.RelatedObjectDoesNotExist:
 				return Response(status=status.HTTP_400_BAD_REQUEST)
 
-			
 			student_pk_data = {"students": [student.student.id]}
 			serializer = SectionStudentAdditionSerializer(section, data=student_pk_data)
 			if serializer.is_valid():
@@ -344,8 +343,9 @@ def api_quiz_create_view(request):
 		serializer = QuizCreateSerializer(data = request.data)
 		data = {}
 		if ( serializer.is_valid() ):
-			serializer.save()
+			quiz = serializer.save()
 			data['response'] = "Successfully created a new quiz."
+			data['id'] = quiz.id
 		else:
 			data = serializer.errors
 		return Response(data)

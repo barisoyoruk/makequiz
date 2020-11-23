@@ -18,8 +18,8 @@ class StudentMainPage extends React.Component {
                 sessionStorage.setItem('student_last_name', response.data['user']['last_name']);
                 sessionStorage.setItem('student_ID', response.data['student_ID']);
                 sessionStorage.setItem('student_class', response.data['student_class']);
-                sessionStorage.setItem('student_pk', response.data['pk']);
                 sessionStorage.setItem('student_sections', JSON.stringify(response.data['section']));
+                sessionStorage.setItem('student_assignments', JSON.stringify(response.data['assignment']));
             })
             .catch(function(error) {
 	    		if (error.response) {
@@ -44,9 +44,9 @@ class StudentMainPage extends React.Component {
             <div id="student_main_div">
                 <button onClick={()=>this.props.history.push('/StudentProfilePage')}>My Profile</button>
                 <button onClick={()=>this.props.history.push('/StudentSectionPage')}>Sections</button>
-                <button onClick={()=>this.props.history.push('/StudentQuizzesPage')}>Quizzes</button>
-                <button onClick={()=>this.props.history.push('/StudentSubmissionsPage')}>Submissions</button>
-                <button onClick={()=>this.props.history.push('/StudentResultsPage')}>Results</button>
+                <button onClick={()=>this.props.history.push('/StudentAssignmentPage')}>Assignments</button>
+                <button onClick={()=>this.props.history.push('/StudentSubmissionPage')}>Submissions</button>
+                <button onClick={()=>this.props.history.push('/StudentResultPage')}>Results</button>
                 <br/>
                 <br/>
                 <br/>

@@ -97,10 +97,11 @@ class Quiz(models.Model):
 	quiz_no = models.CharField(max_length = 2)
 
 class Question(models.Model):
-	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "question")
+	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "questions")
 
 	question_prompt = models.TextField(max_length = 1000)
 	question_worth = models.IntegerField()
+	question_no = models.IntegerField()
 
 class Assignment(models.Model):
 	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "assignment")

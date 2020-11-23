@@ -54,6 +54,9 @@ class StudentSectionPage extends React.Component {
 
         return(
             <div>
+                <button onClick={()=>this.props.history.push('/StudentMainPage')}>Main Page</button>
+                <br/>
+                <br/>
                 {listItems}
             </div>
         );
