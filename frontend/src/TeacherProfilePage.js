@@ -1,23 +1,14 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useHistory} from 'react-router-dom';
 
 function TeacherProfilePage() {
     const history = useHistory();
     
-    const [teacher_email, set_teacher_email] = React.useState("");
-    const [teacher_first_name, set_teacher_first_name] = React.useState("");
-    const [teacher_last_name, set_teacher_last_name] = React.useState("");
-    const [teacher_ID, set_teacher_ID] = React.useState("");
-    const [teacher_field,set_teacher_field] = React.useState("");
-
-
-    useEffect(()=>{
-        set_teacher_email(sessionStorage.getItem('teacher_email'));
-        set_teacher_first_name(sessionStorage.getItem('teacher_first_name'));
-        set_teacher_last_name(sessionStorage.getItem('teacher_last_name'));
-        set_teacher_ID(sessionStorage.getItem('teacher_ID'));
-        set_teacher_field(sessionStorage.getItem('teacher_field'));
-    }, [])
+    const teacher_email = sessionStorage.getItem('teacher_email');
+    const teacher_first_name = sessionStorage.getItem('teacher_first_name');
+    const teacher_last_name = sessionStorage.getItem('teacher_last_name');
+    const teacher_ID = sessionStorage.getItem('teacher_ID');
+    const teacher_field = sessionStorage.getItem('teacher_field');
 
     return (
         <div id="teacher_profile_div">

@@ -1,6 +1,6 @@
 import React from 'react';
 import Loader from 'react-loader-spinner';
-import { usePromiseTracker, trackPromise } from "react-promise-tracker";
+import {usePromiseTracker, trackPromise} from "react-promise-tracker";
 import axios from 'axios';
 import {config} from './config'
 
@@ -18,7 +18,7 @@ class StudentRegisterPage extends React.Component {
         e.preventDefault();
         this.setState({isSubmitEnabled: false});
 
-        let request_body = {
+        const request_body = {
             'user': {
                 'first_name': e.target.student_first_name.value,
                 'last_name': e.target.student_last_name.value,
@@ -30,7 +30,7 @@ class StudentRegisterPage extends React.Component {
             'student_class': e.target.student_class.value 
         };
 
-        var self = this;
+        const self = this;
         trackPromise(
             axios.post(config.api_url + '/student/register/', request_body)
             .then(function(response) {
@@ -38,16 +38,14 @@ class StudentRegisterPage extends React.Component {
             })
             .catch(function(error) {
                 let errorText = "";
-	    		// Server Responded. Something wrong with credentials 
 	    		if (error.response) {
-                    errorText = [JSON.stringify(error.response.data)];
+                    errorText = JSON.stringify(error.response.data);
 	    		}
-	    		// Server did not Respond. Something wrong with server
 	    		else if (error.request) {
-	    			errorText = ["Server does not respond. Please try again later."];
+	    			errorText = "Server does not respond. Please try again later.";
 	    		}
 	    		else {
-	    			errorText = [error.message];
+	    			errorText = error.message;
 	    		}
 	    		
 	    		self.setState({errorMessage: errorText});
@@ -123,7 +121,7 @@ class StudentRegisterPage extends React.Component {
 }
 
 const LoadingIndicator = props => {
-	const { promiseInProgress } = usePromiseTracker();
+	const promiseInProgress = usePromiseTracker();
 
     return promiseInProgress && 
         <div

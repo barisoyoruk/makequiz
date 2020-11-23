@@ -1,15 +1,16 @@
 import React from 'react'; 
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import LandingPage from './LandingPage'
-import StudentLoginPage from './StudentLoginPage'
-import TeacherLoginPage from './TeacherLoginPage'
-import StudentRegisterPage from './StudentRegisterPage'
-import TeacherRegisterPage from './TeacherRegisterPage'
-import TeacherMainPage from './TeacherMainPage'
-import StudentMainPage from './StudentMainPage'
-import StudentProfilePage from './StudentProfilePage'
-import TeacherProfilePage from './TeacherProfilePage'
-import TeacherSectionPage from './TeacherSectionPage'
+import LandingPage from './LandingPage';
+import StudentLoginPage from './StudentLoginPage';
+import TeacherLoginPage from './TeacherLoginPage';
+import StudentRegisterPage from './StudentRegisterPage';
+import TeacherRegisterPage from './TeacherRegisterPage';
+import TeacherMainPage from './TeacherMainPage';
+import StudentMainPage from './StudentMainPage';
+import StudentProfilePage from './StudentProfilePage';
+import TeacherProfilePage from './TeacherProfilePage';
+import TeacherSectionPage from './TeacherSectionPage';
+import StudentSectionPage from './StudentSectionPage';
 
 function App() {
     return(
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/StudentProfilePage" exact component={StudentProfilePage}/>
                     <Route path="/TeacherProfilePage" exact component={TeacherProfilePage}/>
                     <Route path="/TeacherSectionPage" exact component={TeacherSectionPage}/>
+                    <Route path="/StudentSectionPage" exact component={StudentSectionPage}/>
                 </Switch>
             </div>
         </Router>

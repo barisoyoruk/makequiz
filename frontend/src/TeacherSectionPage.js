@@ -9,12 +9,13 @@ class TeacherSectionPage extends React.Component {
             teacher_sections_data: [],
         }
         this.addStudentToSection = this.addStudentToSection.bind(this);
+        this.createNewSection = this.createNewSection.bind(this);
     }
 
     componentDidMount() {
         const token = sessionStorage.getItem('token');
-        let teacher_sections = JSON.parse(sessionStorage.getItem('teacher_sections'));
-        let self = this;
+        const teacher_sections = JSON.parse(sessionStorage.getItem('teacher_sections'));
+        const self = this;
         for (let section_pk of teacher_sections) {
             axios.get( config.api_url + '/section/' + section_pk, {
                         headers: {Authorization: "Token " + token}
@@ -31,16 +32,16 @@ class TeacherSectionPage extends React.Component {
                     });
                 }
                 else {
-                    let students_pk = response.data['students'];
+                    const students_pk = response.data['students'];
 
-                    let axios_requests_urls = [];
+                    let axios_request_urls = [];
                     for (let student_pk of students_pk) {
-                        axios_requests_urls.push(config.api_url + '/student/' + student_pk);
+                        axios_request_urls.push(config.api_url + '/student/' + student_pk);
                     }
 
                     let axios_requests = [];
-                    for (let axios_requests_url of axios_requests_urls) {
-                        axios_requests.push(axios.get(axios_requests_url, {headers: {Authorization: "Token " + token}}));
+                    for (let axios_request_url of axios_request_urls) {
+                        axios_requests.push(axios.get(axios_request_url, {headers: {Authorization: "Token " + token}}));
                     }
                     
                     let students_data = [];
@@ -52,7 +53,7 @@ class TeacherSectionPage extends React.Component {
                                 'student_last_name': student_response.data['user']['last_name'],
                                 'student_ID': student_response.data['student_ID'],
                                 'student_class': student_response.data['student_class'],
-                                'student_email': student_response.data['user']['email'],
+                                'student_email': student_response.data['user']['email']
                             })
                         }
                         self.setState({
@@ -63,7 +64,7 @@ class TeacherSectionPage extends React.Component {
                                 'students_data': students_data,
                             }]
                         });
-                    }))
+                    }));
                 }
             }
         )}
@@ -75,47 +76,98 @@ class TeacherSectionPage extends React.Component {
         const student_email = e.target.student_email.value;
         const request_body = {
             'students': [student_email]
-        }
+        };
 
-        let self = this;
+        const self = this;
         axios.put(config.api_url + '/section/' + section_pk , request_body, {headers: {Authorization: "Token " + token}})
         .then(function(response) {
-            let new_sections_data = self.state.teacher_sections_data
-            for (let index in new_sections_data) {
-                if (new_sections_data[index].section_pk === section_pk) {
-                    console.log(response);
-                    new_sections_data[index].students_data.push({
+            let copy_sections_data = self.state.teacher_sections_data
+            for (let index in copy_sections_data) {
+                if (copy_sections_data[index].section_pk === section_pk) {
+                    copy_sections_data[index].students_data.push({
                         'student_first_name': response.data['user']['first_name'],
                         'student_last_name': response.data['user']['last_name'],
                         'student_ID': response.data['student_ID'],
                         'student_class': response.data['student_class'],
                         'student_email': response.data['user']['email'],
-                    })
+                    });
                     self.setState({
-                        teacher_sections_data: new_sections_data 
-                    })
+                        teacher_sections_data: copy_sections_data 
+                    });
                     break;
                 }
             }
-        })
-    }        
+        });
+    }
 
+    createNewSection(e) {
+        e.preventDefault();
+        const token = sessionStorage.getItem('token');
+        const new_section_code = e.target.section_code.value;
+        const new_section_semester_time = e.target.section_semester_time.value;
+        const teacher_pk = sessionStorage.getItem('teacher_pk');
+        const request_body = {
+            'section_code': new_section_code,
+            'semester_time': new_section_semester_time,
+            'teacher': teacher_pk
+        };
+
+        const self = this;
+        axios.post(config.api_url + '/section/create/', request_body, {headers: {Authorization: "Token " + token}})
+        .then(function(response) {
+            self.setState({
+                teacher_sections_data: [...self.state.teacher_sections_data, {
+                    'section_code': response.data['section_code'],
+                    'semester_time': response.data['semester_time'],
+                    'section_pk': response.data['pk'],
+                    'students_data': [],
+                }]
+            });
+            const teacher_sections = JSON.parse(sessionStorage.getItem('teacher_sections'));
+            teacher_sections.push(response.data['pk']);
+            sessionStorage.setItem('teacher_sections', JSON.stringify(teacher_sections));
+        })
+    }
+    
     render() {
-        let listItems = this.state.teacher_sections_data.map((data) =>
+        let copy_teacher_sections_data = this.state.teacher_sections_data;
+        copy_teacher_sections_data.sort(function(a,b) {
+            return a.section_code - b.section_code;
+        });
+
+        let listItems = copy_teacher_sections_data.map((data) =>
             <div>
                 <SectionHeaderComponent section_code={data.section_code} semester_time={data.semester_time} section_pk={data.section_pk} addStudentToSection={this.addStudentToSection}/>
                 <StudentListComponent students_data={data.students_data}/>
             </div>
         );
 
+
+
         return (
-            <ul>
-                {listItems}
-            </ul>
+            <div>
+                <NewSectionComponent createNewSection={this.createNewSection}/>
+                <br/>
+                <br/>
+                <ul>
+                    {listItems}
+                </ul>
+            </div>
         )
     }
 }
 
+function NewSectionComponent(props) {
+    return (
+        <div>
+            <form onSubmit={(e)=>props.createNewSection(e)}>
+                <button>Create New Section</button>
+                <input type="text" name="section_code" placeholder="Section's Code"></input>
+                <input type="text" name="section_semester_time" placeholder="Section's Semester Time"></input>
+            </form>
+        </div>
+    )
+}
 
 function SectionHeaderComponent(props) {
     return (
@@ -148,6 +200,5 @@ function StudentListComponent(props) {
        </ul>
     )
 }
-
 
 export default TeacherSectionPage;

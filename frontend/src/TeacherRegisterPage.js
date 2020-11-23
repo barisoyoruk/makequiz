@@ -1,6 +1,6 @@
 import React from 'react';
 import Loader from 'react-loader-spinner';
-import { usePromiseTracker, trackPromise } from "react-promise-tracker";
+import {usePromiseTracker, trackPromise} from "react-promise-tracker";
 import axios from 'axios';
 import {config} from './config'
 
@@ -18,7 +18,7 @@ class TeacherRegisterPage extends React.Component {
         e.preventDefault();
         this.setState({isSubmitEnabled: false});
 
-        let request_body = {
+        const request_body = {
             'user': {
                 'first_name': e.target.teacher_first_name.value,
                 'last_name': e.target.teacher_last_name.value,
@@ -30,7 +30,7 @@ class TeacherRegisterPage extends React.Component {
             'teacher_field': e.target.teacher_field.value 
         };
 
-        var self = this;
+        let self = this;
         trackPromise(
             axios.post(config.api_url + '/teacher/register/', request_body)
             .then(function(response) {
@@ -38,11 +38,9 @@ class TeacherRegisterPage extends React.Component {
             })
             .catch(function(error) {
                 let errorText = "";
-	    		// Server Responded. Something wrong with credentials 
 	    		if (error.response) {
                     errorText = [JSON.stringify(error.response.data)];
 	    		}
-	    		// Server did not Respond. Something wrong with server
 	    		else if (error.request) {
                     errorText = ["Server does not respond. Please try again later."];
 	    		}
@@ -119,7 +117,7 @@ class TeacherRegisterPage extends React.Component {
 }
 
 const LoadingIndicator = props => {
-    const { promiseInProgress } = usePromiseTracker();
+    const promiseInProgress = usePromiseTracker();
 
     return promiseInProgress && 
         <div

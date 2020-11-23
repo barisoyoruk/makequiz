@@ -322,9 +322,12 @@ def api_section_create_view(request):
 			section = serializer.save()
 			data['response'] = "Successfully created a new section."
 			data['section_code'] = section.section_code
+			data['section_data'] = section.semester_time
+			data['pk'] = section.id
+			return Response(data)
 		else:
 			data = serializer.errors
-		return Response(data)
+			return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

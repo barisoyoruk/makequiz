@@ -18,13 +18,13 @@ class TeacherLoginPage extends React.Component {
         e.preventDefault();
         this.setState({isSubmitEnabled: false});
         
-        let request_body = {
+        const request_body = {
             'username': e.target.teacher_email.value,
             'password': e.target.teacher_password.value
         };
         
         let errorText;
-        var self = this;
+        const self = this;
         trackPromise(
             axios.post(config.api_url + '/teacher/login/', request_body)
             .then(function(response) {
@@ -47,10 +47,10 @@ class TeacherLoginPage extends React.Component {
 	    		}
 	    		// Server did not Respond. Something wrong with server
 	    		else if (error.request) {
-	    			errorText = ["Server does not respond. Please try again later."];
+	    			errorText = "Server does not respond. Please try again later.";
 	    		}
 	    		else {
-	    			errorText = [error.message];
+	    			errorText = error.message;
 	    		}
 	    		
 	    		self.setState({errorMessage: errorText});

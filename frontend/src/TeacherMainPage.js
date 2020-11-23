@@ -18,6 +18,7 @@ class TeacherMainPage extends React.Component {
                 sessionStorage.setItem('teacher_last_name', response.data['user']['last_name']);
                 sessionStorage.setItem('teacher_ID', response.data['teacher_ID']);
                 sessionStorage.setItem('teacher_field', response.data['teacher_field']);
+                sessionStorage.setItem('teacher_pk', response.data['pk']);
                 sessionStorage.setItem('teacher_sections', JSON.stringify(response.data['section']));
             })
             .catch(function(error) {
@@ -25,6 +26,10 @@ class TeacherMainPage extends React.Component {
             .then(function() {
             })
         );
+    }
+
+    logout() {
+        sessionStorage.clear();
     }
 
     render() {
@@ -35,6 +40,10 @@ class TeacherMainPage extends React.Component {
                 <button onClick={()=>this.props.history.push('/TeacherQuizzesPage')}>Quizzes</button>
                 <button onClick={()=>this.props.history.push('/TeacherSubmissionPage')}>Submissions</button>
                 <button onClick={()=>this.props.history.push('/TeacherResultsPage')}>Results</button>
+                <br/>
+                <br/>
+                <br/>
+                <button onClick={()=>this.props.history.push('/')}>Logout</button>
             </div>
         )
     }

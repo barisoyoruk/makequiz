@@ -19,22 +19,38 @@ class StudentMainPage extends React.Component {
                 sessionStorage.setItem('student_ID', response.data['student_ID']);
                 sessionStorage.setItem('student_class', response.data['student_class']);
                 sessionStorage.setItem('student_pk', response.data['pk']);
+                sessionStorage.setItem('student_sections', JSON.stringify(response.data['section']));
             })
             .catch(function(error) {
+	    		if (error.response) {
+	    		}
+	    		else if (error.request) {
+	    		}
+	    		else {
+
+	    		}
             })
             .then(function() {
             })
         );
     }
 
+    logout() {
+        sessionStorage.clear();
+    }
+
     render() {
         return (
             <div id="student_main_div">
                 <button onClick={()=>this.props.history.push('/StudentProfilePage')}>My Profile</button>
-                <button onClick={()=>this.props.history.push('/StudentSectionsPage')}>Sections</button>
+                <button onClick={()=>this.props.history.push('/StudentSectionPage')}>Sections</button>
                 <button onClick={()=>this.props.history.push('/StudentQuizzesPage')}>Quizzes</button>
                 <button onClick={()=>this.props.history.push('/StudentSubmissionsPage')}>Submissions</button>
                 <button onClick={()=>this.props.history.push('/StudentResultsPage')}>Results</button>
+                <br/>
+                <br/>
+                <br/>
+                <button onClick={()=>this.props.history.push('/')}>Logout</button>
             </div>
         )
     }
