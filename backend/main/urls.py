@@ -18,7 +18,8 @@ from main.views import (
 	AnswerCreateViewSet,
 	SubmissionCreateViewSet,
 	ResultCreateViewSet,
-	CustomAuthToken
+	CustomAuthToken,
+	api_section_assignment_view
 )
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -45,6 +46,7 @@ urlpatterns = [
 	path('answer/create/', AnswerCreateViewSet.as_view()),
 	path('submission/create/', SubmissionCreateViewSet.as_view()),
 	path('result/create/', ResultCreateViewSet.as_view()),
+	path('assignment/createWithSection/', api_section_assignment_view),
 ]
 
 urlpatterns += [

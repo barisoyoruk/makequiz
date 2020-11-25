@@ -26,7 +26,7 @@ class TeacherQuizPage extends React.Component {
                             'quiz_topic': response.data['quiz_topic'],
                             'quiz_field': response.data['quiz_field'],
                             'quiz_no': response.data['quiz_no'],
-                            'quiz_pk': response.data['pk'],
+                            'quiz_pk': quiz_pk,
                             'questions_data': [],
                         }]
                     });
@@ -79,7 +79,7 @@ class TeacherQuizPage extends React.Component {
                                 'quiz_topic': response.data['quiz_topic'],
                                 'quiz_field': response.data['quiz_field'],
                                 'quiz_no': response.data['quiz_no'],
-                                'quiz_pk': response.data['pk'],
+                                'quiz_pk': quiz_pk,
                                 'questions_data': questions_data,
                                 'sections_data': sections_data
                             }]
@@ -91,8 +91,30 @@ class TeacherQuizPage extends React.Component {
         }
     }
 
-    assignQuizToNewSection(quiz_pk) {
-        
+    assignQuizToNewSection(e, quiz_pk) {
+        e.preventDefault();
+
+        const today = new Date();
+        const publication_date = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+        const publication_time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+        const due_date = e.target.due_date.value;
+        const due_time = e.target.due_time.value;
+
+        const token = sessionStorage.getItem('token');
+        const section_pk = e.target.teacher_section.value;
+        const request_body = {
+            'section': section_pk,
+            'quiz': quiz_pk,
+            'publication_date': publication_date + "T" + publication_time,
+            'due_date': due_date + "T" + due_time,
+        }
+
+        axios.post(config.api_url + '/assignment/createWithSection/', request_body, {
+                    headers: {Authorization: "Token " + token}
+        })
+        .then(function(response) {
+        })
     }
 
     render() {
@@ -142,10 +164,15 @@ function QuizHeaderComponent(props) {
             <div>Quiz Field: {props.quiz_field}</div>
             <div>Quiz Topic: {props.quiz_topic}</div>
             <form onSubmit={(e)=>props.assignQuizToNewSection(e, props.quiz_pk)}>
-                <input list="teacher_sections" name="teacher=section"/>
+                <label htmlFor="teacher_section">Section Code: </label>
+                <input list="teacher_sections" name="teacher_section"/>
                 <datalist id="teacher_sections">
                     {sectionsCodesListItem}
                 </datalist>
+                <label htmlFor="due_date"> Due Date: </label>
+                <input type="date" name="due_date"/>
+                <label htmlFor="due_date"> Due Time: </label>
+                <input type="time" name="due_time"/>
                 <button >Assign to New Section</button>
             </form>
             <br/>

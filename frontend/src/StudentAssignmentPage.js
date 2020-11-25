@@ -8,6 +8,7 @@ class StudentAssignmentPage extends React.Component {
         this.state = {
             student_assignments_data: [],
         }
+        this.attempToAssignment = this.attempToAssignment.bind(this);
     }
 
     componentDidMount() {
@@ -57,12 +58,17 @@ class StudentAssignmentPage extends React.Component {
                                 'quiz_topic': quiz_topic,
                                 'quiz_field': quiz_field,
                                 'quiz_no': quiz_no,
+                                'assignment_pk': assignment_pk,
                             }]
                         })
                     });
                 })
             })
         }
+    }
+
+    attempToAssignment(assignment_pk) {
+        this.props.history.push('/StudentAttemptAssignmentPage/:' + assignment_pk)
     }
 
     render() {
@@ -73,7 +79,7 @@ class StudentAssignmentPage extends React.Component {
 
         let quizzesListItems = copy_student_assignments_data.map((data) =>
             <div>
-                <AssignmentComponent assignment_data={data}/>
+                <AssignmentComponent assignment_data={data} attempToAssignment={this.attempToAssignment}/>
             </div>
         )
         
@@ -98,7 +104,7 @@ function AssignmentComponent(props) {
             <div>Due Date: {props.assignment_data.due_date}</div>
             <div>{props.assignment_data.teacher_first_name} {props.assignment_data.teacher_first_name} - {props.assignment_data.teacher_email}</div>
             <br/>
-            <button>Attempt To Assignment</button>
+            <button onClick={()=>props.attempToAssignment(props.assignment_data.assignment_pk)}>Attempt To Assignment</button>
             <hr/>
         </div>
     )

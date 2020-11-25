@@ -198,19 +198,6 @@ class AssignmentViewSet(generics.RetrieveDestroyAPIView):
 	queryset = Assignment.objects.get_queryset()
 	permission_classes = [permissions.IsAuthenticated]
 
-	def perform_destroy(self, instance):
-		user = self.request.user
-
-		if user.is_staff:
-			operation = instance.delete()
-			data = {}
-			if operation:
-				data["success"] = "delete successful"
-			else:
-				data["failure"] = "delete failed"
-			return Response(data = data)
-		return Response(status=status.HTTP_400_BAD_REQUEST)
-
 class SubmissionViewSet(generics.RetrieveDestroyAPIView):
 	queryset = Submission.objects.get_queryset()
 	serializer_class = SubmissionSerializer
@@ -399,6 +386,7 @@ class SubmissionCreateViewSet(generics.CreateAPIView):
 		serializer = self.get_serializer(data = request.data)
 		serializer.is_valid(raise_exception=True)
 		self.perform_create(serializer)
+		print(serializer.data)
 		headers = self.get_success_headers(serializer.data)
 		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -460,3 +448,42 @@ class CustomAuthToken(ObtainAuthToken):
 			'email': user.email,
 			'user_type': user.user_type,
 		})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_section_assignment_view(request):
+
+	user = request.user
+	try:
+		teacher = user.teacher
+	except Teacher.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	try:
+		quiz = Quiz.objects.get(pk=request.data['quiz'])
+	except Quiz.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	if not quiz in teacher.quiz.all():
+		return Response(status=status.HTTP_400_BAD_REQUEST)
+
+	try:
+		section = Section.objects.get(section_code=request.data['section'])
+	except Section.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	if request.method == 'POST':
+		request.data.pop('section')
+		data = []
+		for student in section.students.all():
+			datum = {}
+			request.data['student'] = student.id
+			serializer = AssignmentCreateSerializer(data=request.data)
+			if (serializer.is_valid()):
+				assignment = serializer.save()
+				datum['student_pk'] = student.id
+				datum['assignment_pk'] = assignment.id
+			else:
+				datum['error'] = serializer.errors
+			data.append(datum)
+		return Response(data, status=status.HTTP_200_OK)

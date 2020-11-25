@@ -50,7 +50,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Question
-		fields = ['quiz', 'question_prompt', 'question_worth', 'question_no']
+		fields = ['quiz', 'question_prompt', 'question_worth', 'question_no', 'id']
 
 class AssignmentSerializer(serializers.ModelSerializer):
 	student = serializers.PrimaryKeyRelatedField(read_only = True)
@@ -180,6 +180,11 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Submission
 		fields = ["student", "quiz", "submission_date"]
+
+	def to_representation(self, instance):
+		data = super(SubmissionCreateSerializer, self).to_representation(instance)
+		data['pk'] = instance.id
+		return data
 
 class AnswerCreateSerializer(serializers.ModelSerializer):
 	submission = serializers.PrimaryKeyRelatedField(queryset = Submission.objects.all())

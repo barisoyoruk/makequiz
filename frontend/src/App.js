@@ -14,6 +14,7 @@ import StudentSectionPage from './StudentSectionPage';
 import TeacherQuizPage from './TeacherQuizPage';
 import TeacherCreateQuizPage from './TeacherCreateQuizPage';
 import StudentAssignmentPage from './StudentAssignmentPage';
+import StudentAttemptAssignmentPage from './StudentAttemptAssignmentPage';
 
 function App() {
     return(
@@ -34,6 +35,7 @@ function App() {
                     <Route path="/TeacherQuizPage" exact component={TeacherQuizPage}/>
                     <Route path="/TeacherCreateQuizPage" exact component={TeacherCreateQuizPage}/>
                     <Route path="/StudentAssignmentPage" exact component={StudentAssignmentPage}/>
+                    <Route path="/StudentAttemptAssignmentPage/:id" exact component={StudentAttemptAssignmentPage}/>
                 </Switch>
             </div>
         </Router>

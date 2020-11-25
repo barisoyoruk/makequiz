@@ -117,7 +117,7 @@ class TeacherRegisterPage extends React.Component {
 }
 
 const LoadingIndicator = props => {
-    const promiseInProgress = usePromiseTracker();
+    const {promiseInProgress} = usePromiseTracker();
 
     return promiseInProgress && 
         <div
