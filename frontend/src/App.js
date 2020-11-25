@@ -15,6 +15,8 @@ import TeacherQuizPage from './TeacherQuizPage';
 import TeacherCreateQuizPage from './TeacherCreateQuizPage';
 import StudentAssignmentPage from './StudentAssignmentPage';
 import StudentAttemptAssignmentPage from './StudentAttemptAssignmentPage';
+import StudentSubmissionPage from './StudentSubmissionPage';
+import TeacherSubmissionPage from './TeacherSubmissionPage';
 
 function App() {
     return(
@@ -36,6 +38,8 @@ function App() {
                     <Route path="/TeacherCreateQuizPage" exact component={TeacherCreateQuizPage}/>
                     <Route path="/StudentAssignmentPage" exact component={StudentAssignmentPage}/>
                     <Route path="/StudentAttemptAssignmentPage/:id" exact component={StudentAttemptAssignmentPage}/>
+                    <Route path="/StudentSubmissionPage" exact component={StudentSubmissionPage}/>
+                    <Route path="/TeacherSubmissionPage" exact component={TeacherSubmissionPage}/>
                 </Switch>
             </div>
         </Router>

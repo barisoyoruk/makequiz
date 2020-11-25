@@ -20,6 +20,7 @@ class StudentMainPage extends React.Component {
                 sessionStorage.setItem('student_class', response.data['student_class']);
                 sessionStorage.setItem('student_sections', JSON.stringify(response.data['section']));
                 sessionStorage.setItem('student_assignments', JSON.stringify(response.data['assignment']));
+                sessionStorage.setItem('student_submissions', JSON.stringify(response.data['submission']));
             })
             .catch(function(error) {
 	    		if (error.response) {

@@ -43,7 +43,7 @@ class QuizSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Quiz
-		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher', 'questions', 'quiz_no', 'id'] 
+		fields = ['quiz_topic', 'quiz_field', 'quiz_no', 'teacher', 'questions', 'quiz_no', 'id', 'submission'] 
 
 class QuestionSerializer(serializers.ModelSerializer):
 	quiz = serializers.PrimaryKeyRelatedField(read_only = True)
@@ -74,7 +74,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Submission
-		fields = ['quiz', 'student', 'answer']	
+		fields = ['quiz', 'student', 'answer', 'submission_date']	
 
 class ResultSerializer(serializers.ModelSerializer):
 	submission = serializers.PrimaryKeyRelatedField(read_only = True)
