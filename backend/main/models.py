@@ -40,7 +40,7 @@ class User(AbstractBaseUser):
 		( 'TE', 'Teacher' ),
 		( 'NO', 'None' ),
 	]
-	user_type = models.CharField(max_length = 10, choices = USER_TYPE_CHOICES, default='NO')
+	user_type = models.CharField(max_length = 7, choices = USER_TYPE_CHOICES, default='NO')
 
 	USERNAME_FIELD = 'email'
 
@@ -62,7 +62,7 @@ class Teacher(models.Model):
 	teacher_field = models.CharField(max_length = 30)
 
 	def __str__(self):
-		return self.teacher_ID
+		return self.user.email
 
 class Student(models.Model):
 	user = models.OneToOneField(User, on_delete = models.CASCADE)
@@ -74,27 +74,30 @@ class Student(models.Model):
 		( 'Junior', 'Junior' ),
 		( 'Senior', 'Senior' ),
 	]
-	student_class = models.CharField(max_length = 10, choices = YEAR_IN_SCHOOL_CHOICES)
+	student_class = models.CharField(max_length = 9, choices = YEAR_IN_SCHOOL_CHOICES)
 
 	def __str__(self):
-		return self.student_ID
+		return self.user.email
 
 class Section(models.Model):
-	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "section")
-	students = models.ManyToManyField(Student, related_name = "section")
+	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "sections")
+	students = models.ManyToManyField(Student, related_name = "sections")
 	
-	section_code = models.CharField(unique = True, max_length = 10) #MATH201-13
-	semester_time = models.CharField(max_length = 11 ) #2019-SPRING
+	section_code = models.CharField(unique = True, max_length = 10)
+	semester_time = models.CharField(max_length = 11 )
 
 	def __str__(self):
 		return self.section_code
 
 class Quiz(models.Model):
-	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "quiz")
+	teacher = models.ForeignKey(Teacher, on_delete = models.CASCADE, related_name = "quizzes")
 
 	quiz_topic = models.CharField(max_length = 50)
 	quiz_field = models.CharField(max_length = 30)
-	quiz_no = models.CharField(max_length = 2)
+	quiz_no = models.CharField(max_length = 3)
+
+	def __str__(self):
+		return self.teacher.__str() + ": " + self.quiz_no
 
 class Question(models.Model):
 	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "questions")
@@ -103,30 +106,45 @@ class Question(models.Model):
 	question_worth = models.IntegerField()
 	question_no = models.IntegerField()
 
+	def __str__(self):
+		return self.quiz.__str() + ": " + self.quiz.quiz_no + ": " + self.question_no
+
 class Assignment(models.Model):
-	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "assignment")
-	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "assignment")
+	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "assignments")
+	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "assignments")
 
 	publication_date = models.DateTimeField('date published')
 	due_date = models.DateTimeField('due date')
 
+	def __str__(self):
+		return self.student.__str() + ": " + self.quiz.quiz_no 
+
 class Submission(models.Model):
-	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "submission")
-	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "submission")
+	quiz = models.ForeignKey(Quiz, on_delete = models.CASCADE, related_name = "submissions")
+	student = models.ForeignKey(Student, on_delete = models.CASCADE, related_name = "submissions")
 
 	submission_date = models.DateTimeField('date submitted')
 
+	def __str__(self):
+		return self.student.__str() + ": " + self.quiz.quiz_no
+
 class Answer(models.Model):
-	submission = models.ForeignKey(Submission, on_delete = models.CASCADE, related_name = "answer")
-	question = models.ForeignKey(Question, on_delete = models.CASCADE, related_name = "answer")
+	submission = models.ForeignKey(Submission, on_delete = models.CASCADE, related_name = "answers")
+	question = models.ForeignKey(Question, on_delete = models.CASCADE, related_name = "answers")
 
 	answer_text = models.CharField(max_length = 1000)
+
+	def __str__(self):
+		return self.submission.__str() + ": " + self.question.question_no
 
 class Result(models.Model):
 	submission = models.OneToOneField(Submission, on_delete = models.CASCADE, related_name = "result")
 
 	feedback = models.CharField(max_length = 1000)
 	grade = models.IntegerField()
+
+	def __str__(self):
+		return self.submission.__str()
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
@@ -135,10 +153,15 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 @receiver(post_delete, sender=Teacher)
 def post_delete_user(sender, instance, *args, **kwargs):
-    if instance.user: # just in case user is not specified
+    if instance.user: 
         instance.user.delete()
 
 @receiver(post_delete, sender=Student)
 def post_delete_user(sender, instance, *args, **kwargs):
-    if instance.user: # just in case user is not specified
+    if instance.user:
         instance.user.delete()
+
+@receiver(post_delete, sender=Result)
+def post_delete_result(sender, instance, *args, **kwargs):
+    if instance.user:
+        instance.submission.delete()
