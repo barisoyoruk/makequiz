@@ -139,6 +139,7 @@ class TeacherSubmissionPage extends React.Component {
                     quiz_topic={data.quiz_topic} submission_date={data.submission_date}/>
                 <QuestionComponent questions_answers={data.questions_answers}/>
                 <StudentComponent student_data={data.student_data}/>
+                <FeedbackComponent />
             </div>
         )
 
@@ -161,7 +162,6 @@ function QuizHeaderComponent(props) {
             <div>Quiz Topic: {props.quiz_topic}</div>
             <div>Submission Date: {props.submission_date}</div>
             <br/>
-            <br/>
         </div>
     )
 }
@@ -174,12 +174,10 @@ function QuestionComponent(props) {
 
     let questionsListItem = copy_questions_answers.map((data) => 
         <div>
-            <br/>
             <div>{data.question_no}- {data.question_prompt}</div>
             <div>Question Worth: {data.question_worth}</div>
             <div>Answer: {data.answer_text}</div>
             <br/>
-            <hr/>
         </div>
     );
 
@@ -199,6 +197,24 @@ function StudentComponent(props) {
             <div>Student Email: {props.student_data.student_email}</div>
         <br/>
     </div>
+    )
+}
+
+function FeedbackComponent(props) {
+    return(
+        <div>
+            <form onSubmit="gradeSubmission">
+                <label htmlFor="grade">Grade: </label>
+                <input type="number" name="grade"/>
+                <label htmlFor="feedback">Feedback: </label>
+                <textarea name="feedback" id="" cols="30" rows="10"></textarea>
+                <div>
+                    <br/>
+                   <input type="submit" value="Puanla"/>
+                </div>
+            </form>
+            <hr/>
+        </div>
     )
 }
 
